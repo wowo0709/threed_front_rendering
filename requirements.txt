@@ -1,0 +1,24 @@
+# Install python 3.8 with your torch version
+cython==0.29.36 
+numpy==1.22.4 
+networkx==2.8.8 
+pyrr==0.10.3 
+pyyaml==6.0.1 
+pillow==9.5.0 
+scipy==1.9.3 
+tqdm==4.66.1 
+trimesh==3.23.5 
+matplotlib==3.5.3 
+opencv-python==4.7.0.72
+simple_3dviz
+# If an error occured during installing wxpython, try:
+# sudo apt update
+# sudo apt install -y build-essential libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libjpeg-dev libtiff-dev libsdl2-dev libnotify-dev freeglut3-dev libsm6 libxext6 libxrender1 libxcomposite-dev libxinerama-dev libxcursor-dev libxi-dev libpng-dev pkg-config zlib1g-dev libexpat1-dev
+# pip install --upgrade pip
+# Or, try installing from pre-built wheel
+# pip install https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04/wxPython-4.2.1-cp38-cp38-linux_x86_64.whl
+# If an ImportError occurs while importing wxpython, try:
+# export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+# export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libffi.so.7
+wxpython==4.2.1 
+# pytorch-fast-transformers==0.5.0 
