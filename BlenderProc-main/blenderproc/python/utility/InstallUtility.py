@@ -53,8 +53,11 @@ class InstallUtility:
 
             # If no blender install path is given set it to /home_local/<env:USER>/blender/ per default
             if blender_install_path is None:
-                user_name = os.getenv("USERNAME") if platform == "win32" else os.getenv("USER")
-                blender_install_path = os.path.join("/home_local", user_name, "blender")
+                # user_name = os.getenv("USERNAME") if platform == "win32" else os.getenv("USER")
+                # blender_install_path = os.path.join("/home_local", user_name, "blender")
+                # NOTE: Hard-coding to blender path
+                custom_blender_path = "/usr/local/blender"
+                blender_install_path = None
         return custom_blender_path, blender_install_path
 
     @staticmethod

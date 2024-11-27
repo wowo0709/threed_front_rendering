@@ -20,6 +20,9 @@ all_default_keys = default_rgb_keys + default_flow_keys + default_segmap_keys + 
                    default_depth_keys
 default_depth_max = 20
 
+# Example command
+# blenderproc vis hdf5 /root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_raw/raw --scene_idx 0 --frame_idx 0 --save /root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_512
+
 
 def flow_to_rgb(flow):
     """

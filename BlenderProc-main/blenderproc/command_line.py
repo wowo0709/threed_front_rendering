@@ -149,6 +149,8 @@ def cli():
         blender_run_path, major_version = InstallUtility.make_sure_blender_is_installed(custom_blender_path,
                                                                                         blender_install_path,
                                                                                         args.reinstall_blender)
+        print("Blender path:", blender_run_path)
+        print("Blender version:", major_version)
 
         # Setup script path that should be executed
         if args.mode == "quickstart":

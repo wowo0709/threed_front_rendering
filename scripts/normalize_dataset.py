@@ -83,8 +83,8 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--max-coords",
-        # default=[6.0, 4.0, 6.0] # Bedroom
-        default=[12.0, 4.0, 12.0] # Living
+        default=[6.0, 4.0, 6.0] # Bedroom
+        # default=[12.0, 4.0, 12.0] # Living
     )
     args = parser.parse_args()
     main(args.in_dir, args.out_dir, args.max_coords)

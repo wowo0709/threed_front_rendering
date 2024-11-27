@@ -21,6 +21,10 @@ from simple_3dviz.window import show
 from utils import get_floor_plan, get_walls, export_scene, DirLock, \
     get_windows, get_doors, get_textured_trimesh
 
+# Ex command. 
+# python render_threedfront_scene.py --scene_id {SCENE_ID} {path_to_output_dir} {path_to_3d_front_dataset_dir} {path_to_3d_future_dataset_dir} {path_to_3d_future_model_info} {path_to_floor_plan_texture_images} {path_to_walls_textures}
+# python scripts/render_threedfront_scene.py --scene_id LivingRoom-54780 /root/data/3D-FRONT/render /root/data/3D-FRONT/3D-FRONT /root/data/3D-FRONT/3D-FUTURE-model /root/dev/threed_front_rendering/demo/model_info.json /root/dev/threed_front_rendering/demo/floor_plan_texture_images /root/dev/threed_front_rendering/demo/wall_textures
+
 
 def ensure_parent_directory_exists(filepath):
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
@@ -42,7 +46,8 @@ def main(argv):
     parser = argparse.ArgumentParser(
         description="Visualize a 3D-FRONT room from json file"
     )
-    parser.add_argument(
+    # Path to data/output
+    parser.add_argument( # Save .obj files as well as the textures of all objects in the scene
         "output_directory",
         help="Path to output directory"
     )
@@ -58,7 +63,7 @@ def main(argv):
         "path_to_model_info",
         help="Path to the 3D-FUTURE model_info.json file"
     )
-    parser.add_argument(
+    parser.add_argument( # texture_info.json in 3D-FRONT-texture directory
         "path_to_floor_plan_textures",
         help="Path to floor texture images"
     )
@@ -77,10 +82,15 @@ def main(argv):
         help="The scene id of the scene to be visualized"
     )
     parser.add_argument(
+        "--save_frames",
+        help="Path to save the visualization frames to"
+    )
+    parser.add_argument(
         "--annotation_file",
         default="../config/bedroom_threed_front_splits.csv",
         help="Path to the train/test splits file"
     )
+    # Option for camera configuration
     parser.add_argument(
         "--background",
         type=lambda x: list(map(float, x.split(","))),
@@ -112,10 +122,6 @@ def main(argv):
         help="Define the size of the scene and the window"
     )
     parser.add_argument(
-        "--save_frames",
-        help="Path to save the visualization frames to"
-    )
-    parser.add_argument(
         "--with_screen",
         action="store_true",
         help="Show on screen"
@@ -125,6 +131,7 @@ def main(argv):
         action="store_true",
         help="Use orthographic projection"
     )
+    # Optional geometry/texture visualization
     parser.add_argument(
         "--with_floor_layout",
         action="store_true",
@@ -179,11 +186,13 @@ def main(argv):
 
     for s in d.scenes:
         if s.scene_id == args.scene_id or args.scene_id is None:
+            print(f"Process scene id {s.scene_id}")
             path_to_file = os.path.join(
                 args.output_directory, s.scene_id
             )
             # Check optimistically if the file already exists
             if os.path.exists(path_to_file):
+                print(f"Scene {s.scene_id} exists!")
                 continue
             ensure_parent_directory_exists(path_to_file)
 
@@ -193,6 +202,7 @@ def main(argv):
                     continue
                 if os.path.exists(path_to_file):
                     continue
+                print(f"Start rendering scene id {s.scene_id}")
                 renderables = s.furniture_renderables(
                     with_floor_plan_offset=True, with_texture=args.with_texture
                 )

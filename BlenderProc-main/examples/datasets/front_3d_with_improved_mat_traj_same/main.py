@@ -65,7 +65,7 @@ def read_camera_labels(path_labels, file='boxes.npz'):
         floor_plan_vertices_calc = boxes["floor_plan_vertices_calc"]
     return camera_coords, target_coords, floor_plan_centroid, floor_plan_vertices, floor_plan_vertices_calc
     
-def main(front, future_folder, front_3D_texture_path, cc_material_path, path_labels, output_dir, render_background):
+def main(front, future_folder, front_3D_texture_path, cc_material_path, path_labels, output_dir, render_background, img_resolution):
     if not os.path.exists(front) or not os.path.exists(future_folder):
         raise Exception("One of the two folders does not exist!")
 
@@ -123,7 +123,8 @@ def main(front, future_folder, front_3D_texture_path, cc_material_path, path_lab
 
     fov = 70
     K = fov_to_intrinsics(fov)
-    image_width = image_height = 256
+    # image_width = image_height = 256 # 256
+    image_width = image_height = img_resolution
     clip_start = 0.1
     clip_end = 1000
     K[0,0] *=image_width
@@ -163,6 +164,7 @@ parser.add_argument('path_labels', help="Path to camera labels")
 parser.add_argument("output_dir", help="Path to where the data should be saved")
 parser.add_argument("scene_idx", help="Scene index in camera labels", type=int)
 parser.add_argument("--render_background", type=bool, default=False)
+parser.add_argument("--img_resolution", type=int, default=256)
 args = parser.parse_args()
 
 scenes_front = sorted(os.listdir(args.front))
@@ -178,4 +180,4 @@ output_dir = os.path.join(args.output_dir, scene_label)
 print(path_front)
 if os.path.exists(output_dir):
     exit()
-main(path_front, args.future_folder, args.front_3D_texture_path, args.cc_material_path, path_labels, output_dir, args.render_background)
+main(path_front, args.future_folder, args.front_3D_texture_path, args.cc_material_path, path_labels, output_dir, args.render_background, int(args.img_resolution))

@@ -46,7 +46,7 @@ def load_ccmaterials(folder_path: str = "resources/cctextures", used_assets: lis
     if not use_all_materials and used_assets is None:
         used_assets = probably_useful_texture
     elif used_assets is not None:
-        used_assets = [asset.lower() for asset in used_assets]
+        used_assets = [asset.lower() for asset in used_assets] # ["bricks", "wood", "carpet", "tile", "marble"]
 
     if add_custom_properties is None:
         add_custom_properties = {}
@@ -68,16 +68,18 @@ def load_ccmaterials(folder_path: str = "resources/cctextures", used_assets: lis
                     continue
             current_path = os.path.join(folder_path, asset)
             if os.path.isdir(current_path):
-                base_image_path = os.path.join(current_path, f"{asset}_2K_Color.jpg")
+                # NOTE: image name is different
+                # base_image_path = os.path.join(current_path, f"{asset}_2K_Color.jpg")
+                base_image_path = os.path.join(current_path, f"{asset}_2K-JPG_Color.jpg")
                 if not os.path.exists(base_image_path):
                     continue
 
                 # construct all image paths
                 ambient_occlusion_image_path = base_image_path.replace("Color", "AmbientOcclusion")
-                metallic_image_path = base_image_path.replace("Color", "Metalness")
+                metallic_image_path = base_image_path.replace("Color", "Metalness") 
                 roughness_image_path = base_image_path.replace("Color", "Roughness")
-                alpha_image_path = base_image_path.replace("Color", "Opacity")
-                normal_image_path = base_image_path.replace("Color", "Normal")
+                alpha_image_path = base_image_path.replace("Color", "Opacity") 
+                normal_image_path = base_image_path.replace("Color", "Normal") 
                 displacement_image_path = base_image_path.replace("Color", "Displacement")
 
                 # if the material was already created it only has to be searched

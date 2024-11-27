@@ -37,6 +37,9 @@ def parse_threed_front_scenes(
         # Start parsing the dataset
         print("Loading dataset ", end="")
         for i, m in enumerate(path_to_scene_layouts):
+            # NOTE: For debugging
+            # if i > 10:
+            #     break
             with open(m) as f:
                 data = json.load(f)
                 # Parse the furniture of the scene
@@ -126,7 +129,8 @@ def parse_threed_front_scenes(
         print()
 
         scenes = sum(scenes, [])
-        pickle.dump(scenes, open("/path/to/tmp/threed_front.pkl", "wb"))
+        # pickle.dump(scenes, open("/path/to/tmp/threed_front.pkl", "wb"))
+        pickle.dump(scenes, open("/root/data/3D-FRONT/3D-FRONT/threed_front.pkl", "wb"))
 
     return scenes
 
@@ -198,7 +202,8 @@ def parse_threed_future_models(
             print(s, flush=True, end="\b"*len(s))
         print()
 
-        pickle.dump(furnitures, open("/tmp/threed_future_model.pkl", "wb"))
+        # pickle.dump(furnitures, open("/tmp/threed_future_model.pkl", "wb"))
+        pickle.dump(scenes, open("/root/data/3D-FRONT/3D-FUTURE-model/threed_future_model.pkl", "wb"))
 
     return furnitures
 
