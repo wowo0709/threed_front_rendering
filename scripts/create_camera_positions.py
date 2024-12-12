@@ -85,7 +85,7 @@ def main(args):
         
 
 def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_coords, num_samples_scene=10,
-                            camera_height=1.7, seed=0, top_perc=0.5, dist_perc=0.010, beds_only=False):
+                            camera_height=1.7, seed=0, top_perc=0.5, dist_perc=0.10, beds_only=False):
     np.random.seed(seed)
     torch.manual_seed(seed)
     # Remove batch dimension
@@ -138,12 +138,12 @@ def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_c
     # print(scene_layout_mask, scene_layout_mask.shape)
     # print(valid_layout, valid_layout.shape)
     # print(torch.where(valid_layout))
-    plt.imshow(scene_layout_dist.cpu())
-    plt.show()
-    plt.imshow(scene_layout_mask.cpu())
-    plt.show()
-    plt.imshow(room_layout.cpu())
-    plt.show()
+    # plt.imshow(scene_layout_dist.cpu())
+    # plt.show()
+    # plt.imshow(scene_layout_mask.cpu())
+    # plt.show()
+    # plt.imshow(room_layout.cpu())
+    # plt.show()
     # Remove outer pixels in case numerical errors lead to pixels outside of floorplan
     valid_layout = torch.from_numpy(scipy.ndimage.binary_erosion(valid_layout.cpu().numpy())).to(valid_layout.device)
 
