@@ -18,14 +18,28 @@ path_labels=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_l
 outdir=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_raw/raw_256
 outdir_img=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_256
 img_resolution=256
-for scene_idx in {0..6000}
-do
-echo "Processing scene index: $scene_idx"
+
+# for scene_idx in {0..6000}
+# do
+# echo "Processing scene index: $scene_idx"
+# blenderproc run examples/datasets/front_3d_with_improved_mat_traj_same/main.py $path_to_3d_front_dataset_dir $path_to_3d_future_dataset_dir $path_to_3d_front_texture $path_cc_textures $path_labels $outdir $scene_idx --img_resolution $img_resolution
+# for frame_idx in {0..39}
+# do
+# blenderproc vis hdf5 $outdir --flip=true --keys colors --save $outdir_img --scene_idx $scene_idx --frame_idx $frame_idx --path_labels $path_labels
+# done
+# done
+
+outdir=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_raw/raw_256_depth_normal_noflip_vmax20_raw
+outdir_img=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_256_depth_normal_noflip_vmax20_raw
+# 
+# outdir=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_raw/test/test1
+# outdir_img=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_images/test/test1
+
+scene_idx=2
 blenderproc run examples/datasets/front_3d_with_improved_mat_traj_same/main.py $path_to_3d_front_dataset_dir $path_to_3d_future_dataset_dir $path_to_3d_front_texture $path_cc_textures $path_labels $outdir $scene_idx --img_resolution $img_resolution
 for frame_idx in {0..39}
 do
-blenderproc vis hdf5 $outdir --flip=true --keys colors --save $outdir_img --scene_idx $scene_idx --frame_idx $frame_idx --path_labels $path_labels
-done
+blenderproc vis hdf5 $outdir --keys colors normals depth --rgb_keys colors normals --depth_keys depth --save $outdir_img --scene_idx $scene_idx --frame_idx $frame_idx --path_labels $path_labels
 done
 
 
