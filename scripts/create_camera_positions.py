@@ -6,6 +6,8 @@ from tqdm import tqdm
 import scipy.ndimage
 import scipy.spatial
 
+import matplotlib.pyplot as plt
+
 CLASSES_3DFRONT_WITH_LAMPS = {
     0: 'armchair', 1: 'bookshelf', 2: 'cabinet', 3: 'ceiling_lamp', 4: 'chair', 5: 'children_cabinet', 6: 'coffee_table',
     7: 'desk', 8: 'double_bed', 9: 'dressing_chair', 10: 'dressing_table', 11: 'kids_bed', 12: 'night_stand',
@@ -83,7 +85,7 @@ def main(args):
         
 
 def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_coords, num_samples_scene=10,
-                            camera_height=1.7, seed=0, top_perc=0.5, dist_perc=0.10, beds_only=False):
+                            camera_height=1.7, seed=0, top_perc=0.5, dist_perc=0.010, beds_only=False):
     np.random.seed(seed)
     torch.manual_seed(seed)
     # Remove batch dimension
@@ -101,6 +103,21 @@ def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_c
             return None, None
     # Revert grid back to original shapes: mirror z axis (W)
     scene_grid = torch.flip(scene_grid, [2])
+    
+    # import plotly.graph_objects as go
+
+    # print("scene grid", scene_grid.shape)
+    # print(scene_grid[100, :, :])
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    # x, y, z = np.indices(scene_grid.shape)
+    # ax.scatter(x[scene_grid.cpu() == 1], y[scene_grid.cpu() == 1], z[scene_grid.cpu() == 1], c='r', marker='o', s=0.1)
+    # fig = go.Figure(data=[go.Scatter3d(x=x[scene_grid.cpu() == 1], y=y[scene_grid.cpu() == 1], z=z[scene_grid.cpu() == 1], mode='markers', marker=dict(size=2, color='red', opacity=0.8))])
+    # fig.update_layout(scene=dict(xaxis_title="X", yaxis_title='Y', zaxis_title='Z'), margin=dict(l=0, r=0, b=0, t=0), title="3D")
+    # fig.show()
+    # plt.show()
+    # plt.imshow(scene_grid[:, :, 100].cpu())
+    # plt.show()
     bed_grid = torch.flip(bed_grid, [2])
     room_layout = room_layout.flip(dims=[1])
     bed_center[2] *= -1
@@ -116,6 +133,17 @@ def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_c
     # scene_layout_mask = scene_layout == False
     # Look for positions which don't have objects and are within the room layout
     valid_layout = torch.logical_and(room_layout, scene_layout_mask)
+
+    # print(room_layout, room_layout.shape)
+    # print(scene_layout_mask, scene_layout_mask.shape)
+    # print(valid_layout, valid_layout.shape)
+    # print(torch.where(valid_layout))
+    plt.imshow(scene_layout_dist.cpu())
+    plt.show()
+    plt.imshow(scene_layout_mask.cpu())
+    plt.show()
+    plt.imshow(room_layout.cpu())
+    plt.show()
     # Remove outer pixels in case numerical errors lead to pixels outside of floorplan
     valid_layout = torch.from_numpy(scipy.ndimage.binary_erosion(valid_layout.cpu().numpy())).to(valid_layout.device)
 
@@ -144,6 +172,7 @@ def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_c
     target_coords[:, 0] *= max_coords[0]
     target_coords[:, 1] *= max_coords[1]
     target_coords[:, 2] *= max_coords[2]
+
     # save_point_cloud(target_coords, "/path/to/code/ATISS/points_target.ply")
     # save_point_cloud(valid_coords, "/path/to/code/ATISS/points_camera.ply")
 
@@ -172,6 +201,20 @@ def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_c
         print(f"Only found {valid_coords_selected.shape[0]} valid camera coordinates")
     if target_coords_selected.shape[0] != num_samples_scene:
         print(f"Only found {valid_coords_selected.shape[0]} valid target coordinates")
+
+
+    # # Sample camera coords uniformly
+    # valid_coords_selected = torch.zeros((num_samples_scene, 3), device=valid_coords.device)
+    # angle = torch.linspace(0, 2 * torch.pi, num_samples_scene +1, device=valid_coords.device)[:-1]
+    # valid_coords_selected[:, 1] = torch.ones((num_samples_scene), device=valid_coords.device) * camera_height
+    # r = 3
+    # distance = np.sqrt(r ** 2 - camera_height **2)
+    # valid_coords_selected[:, 0] = distance * torch.cos(angle)
+    # valid_coords_selected[:, 2] = distance * torch.sin(angle)
+    # # valid_coords_selected[:, 2] = torch.sqrt(distance - valid_coords_selected[:, 0])
+    # print("result", valid_coords_selected)
+    # target_coords_selected = torch.zeros((num_samples_scene, 3))
+
     return valid_coords_selected, target_coords_selected
 
 # def sample_camera_positions(scene_grid, bed_grid, room_layout, max_coords, num_samples_scene=10,

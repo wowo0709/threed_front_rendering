@@ -148,6 +148,7 @@ def main(front, future_folder, front_3D_texture_path, cc_material_path, path_lab
     # Also render normals
     bproc.renderer.enable_normals_output()
     bproc.renderer.enable_segmentation_output(map_by=["category_id"])
+    bproc.renderer.enable_depth_output(activate_antialiasing=False)
 
     # render the whole pipeline
     data = bproc.renderer.render()
