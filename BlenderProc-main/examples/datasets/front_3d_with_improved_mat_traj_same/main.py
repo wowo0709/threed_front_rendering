@@ -121,7 +121,7 @@ def main(front, future_folder, front_3D_texture_path, cc_material_path, path_lab
         for i in range(len(floor.get_materials())):
             floor.set_material(i, floor_material)
 
-    fov = 70
+    fov = 70 # degrees
     K = fov_to_intrinsics(fov)
     # image_width = image_height = 256 # 256
     image_width = image_height = img_resolution
@@ -132,6 +132,7 @@ def main(front, future_folder, front_3D_texture_path, cc_material_path, path_lab
     K[1,1] *=image_height
     K[1,2] *=image_height
     bproc.python.camera.CameraUtility.set_intrinsics_from_K_matrix(K, image_width, image_height, clip_start, clip_end)
+    # bproc.renderer.set_world_background([1, 1, 1, 0])
     bproc.renderer.set_output_format(enable_transparency=True)
     for camera_coords, target_coords in zip(camera_coords_all, target_coords_all):
         camera_coords = camera_coords[[0, 2, 1]]
@@ -147,7 +148,10 @@ def main(front, future_folder, front_3D_texture_path, cc_material_path, path_lab
 
     # Also render normals
     bproc.renderer.enable_normals_output()
-    bproc.renderer.enable_segmentation_output(map_by=["category_id"])
+    # bproc.renderer.enable_segmentation_output(map_by=["category_id"])
+    # Anti-alias misses thin structures
+    bproc.renderer.enable_depth_output(activate_antialiasing=False)
+    # bproc.renderer.enable_distance_output(activate_antialiasing=False)
 
     # render the whole pipeline
     data = bproc.renderer.render()
