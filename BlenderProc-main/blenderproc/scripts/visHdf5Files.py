@@ -18,7 +18,7 @@ default_segcolormap_keys = ["segcolormap"]
 default_depth_keys = ["distance", "depth", "stereo-depth"]
 all_default_keys = default_rgb_keys + default_flow_keys + default_segmap_keys + default_segcolormap_keys + \
                    default_depth_keys
-default_depth_max = 20
+default_depth_max = 20.0
 
 # Example command
 # blenderproc vis hdf5 /root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_raw/raw --scene_idx 0 --frame_idx 0 --save /root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_512
@@ -151,8 +151,29 @@ def vis_data(key, data, full_hdf5_data=None, file_label="", rgb_keys=None, flow_
         else:
             if flip:
                 data = np.flip(data, axis=1)
-            plt.imsave(save_to_file, data, cmap='summer', vmax=depth_max)
-            plt.close()
+            # plt.imsave(save_to_file, data, cmap='summer', vmax=depth_max)
+            # plt.imsave(save_to_file, data, cmap='summer')
+            mask = data != np.max(data)
+            # print("data", type(data), np.min(data), np.max(data[mask]), np.max(data)) # data <class 'numpy.ndarray'> 0.765375 3.389505 10000000000.0
+            ### Normalize raw float16 depth value
+            # Clip max depth
+            data = np.clip(data, 0.0, 20.0)
+            # print("data", data.dtype)
+            np.save(os.path.splitext(save_to_file)[0], data)
+            """
+            # print("data", type(data), np.min(data), np.max(data[mask]), np.max(data))
+            # Normalize to [0, 1]
+            # data = (data - np.min(data)) / (np.max(data) - np.min(data))
+            data /= 20.0
+            # print("data", type(data), np.min(data), np.max(data[mask]), np.max(data))
+            # Map to [0, 65536] in uint16 type
+            data = (data * 65535).astype(np.uint16)
+            # print("data", type(data), np.min(data), np.max(data[mask]), np.max(data))
+            # raise NotImplementedError()
+            image = Image.fromarray(data)
+            image.save(save_to_file)
+            # plt.close()
+            """
     elif key_matches(key, rgb_keys):
         if save_to_file is None:
             plt.imshow(data)
@@ -226,10 +247,14 @@ def vis_file(path, keys_to_visualize=None, rgb_keys=None, flow_keys=None, segmap
                         out_path_file = save_to_path
                         file_ind = str(os.path.basename(path)).split('.', maxsplit=1)[0]
                         file_ind = f'{int(file_ind):04d}'
+                        keyname = f"_{key}"
                         # save_to_file = os.path.join(out_path_file, f"{file_ind}{appendix_name}_{key}.png")
-                        save_to_file = os.path.join(out_path_file, f"{file_ind}{appendix_name}.png")
+                        save_to_file = os.path.join(out_path_file, f"{file_ind}{keyname}{appendix_name}.png")
                     else:
                         save_to_file = None
+
+                    print("KEY", key)
+                    print("SAVE_TO_FILE", save_to_file)
 
                     # Check if it is a stereo image
                     if len(value.shape) >= 3 and value.shape[0] == 2:
