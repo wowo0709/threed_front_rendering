@@ -4,6 +4,12 @@ import os
 import numpy as np
 import random
 import re
+import bpy
+
+
+# import debugpy
+# debugpy.listen(5678)
+# debugpy.wait_for_client()
 
 def point_inside_polygon(point, poly, include_edges=True):
     '''
@@ -89,8 +95,21 @@ def main(front, future_folder, front_3D_texture_path, cc_material_path, path_lab
     v_max = floor_plan_vertices.max(0)
     eps_all = 0.0
     eps_wall = 0.01
+
+    loaded_list = [obj.get_name() for obj in loaded_objects]
+
+    objects = bproc.object.get_all_mesh_objects()
+    y_max = 0
+    for obj in objects:
+        y_max = max(y_max, obj.get_bound_box()[:, :-1].max())
+        if obj.get_name() not in loaded_list:
+            print(obj.get_name())
+            obj.hide()
+    y_max /= 3
+
     for obj in loaded_objects:
-        obj_box = obj.get_bound_box()[:, :-1]
+        bb = obj.get_bound_box()
+        obj_box = bb[:, :-1]
         b_c = obj_box.mean(0)
         box_out_floor = b_c[0] < v_min[0] or b_c[0] > v_max[0] or b_c[1] < v_min[1] or b_c[1] > v_max[1]
         eps = eps_wall if 'Wall' in obj.get_name() else eps_all
@@ -110,7 +129,10 @@ def main(front, future_folder, front_3D_texture_path, cc_material_path, path_lab
         elif not point_inside_polygon(b_c, floor_plan_vertices_calc):
             obj.hide()
         elif box_out_floor:
-            obj.hide()      
+            obj.hide()
+        elif bb[:, -1].min() > y_max:
+            print(obj.get_name())
+            obj.hide()
     cc_materials = bproc.loader.load_ccmaterials(cc_material_path, ["Bricks", "Wood", "Carpet", "Tile", "Marble"])   
 
     # Same material to every wall

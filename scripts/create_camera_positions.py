@@ -85,7 +85,7 @@ def main(args):
         
 
 def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_coords, num_samples_scene=10,
-                            camera_height=1.7, seed=0, top_perc=0.5, dist_perc=0.10, beds_only=False):
+                            camera_height=1.7, seed=0, top_perc=0.5, dist_perc=0.010, beds_only=False):
     np.random.seed(seed)
     torch.manual_seed(seed)
     # Remove batch dimension
@@ -134,15 +134,13 @@ def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_c
     # Look for positions which don't have objects and are within the room layout
     valid_layout = torch.logical_and(room_layout, scene_layout_mask)
 
-    # print(room_layout, room_layout.shape)
-    # print(scene_layout_mask, scene_layout_mask.shape)
-    # print(valid_layout, valid_layout.shape)
-    # print(torch.where(valid_layout))
     # plt.imshow(scene_layout_dist.cpu())
     # plt.show()
     # plt.imshow(scene_layout_mask.cpu())
     # plt.show()
     # plt.imshow(room_layout.cpu())
+    # plt.show()
+    # plt.imshow(valid_layout.cpu())
     # plt.show()
     # Remove outer pixels in case numerical errors lead to pixels outside of floorplan
     valid_layout = torch.from_numpy(scipy.ndimage.binary_erosion(valid_layout.cpu().numpy())).to(valid_layout.device)
@@ -202,20 +200,46 @@ def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_c
     if target_coords_selected.shape[0] != num_samples_scene:
         print(f"Only found {valid_coords_selected.shape[0]} valid target coordinates")
 
+    # # visualize camera point
+    # plt.scatter(valid_coords_selected[:, 0].cpu(), valid_coords_selected[:, 2].cpu())
+    # plt.title("Top k")
+    # plt.xlim(-3, 3)
+    # plt.ylim(-3, 3)
+    # plt.show()
 
-    # # Sample camera coords uniformly
-    # valid_coords_selected = torch.zeros((num_samples_scene, 3), device=valid_coords.device)
-    # angle = torch.linspace(0, 2 * torch.pi, num_samples_scene +1, device=valid_coords.device)[:-1]
-    # valid_coords_selected[:, 1] = torch.ones((num_samples_scene), device=valid_coords.device) * camera_height
-    # r = 3
-    # distance = np.sqrt(r ** 2 - camera_height **2)
-    # valid_coords_selected[:, 0] = distance * torch.cos(angle)
-    # valid_coords_selected[:, 2] = distance * torch.sin(angle)
-    # # valid_coords_selected[:, 2] = torch.sqrt(distance - valid_coords_selected[:, 0])
-    # print("result", valid_coords_selected)
-    # target_coords_selected = torch.zeros((num_samples_scene, 3))
+    # random select
+    num_in = int(num_samples_scene * 0.75)
+    valid_rand = valid_coords[torch.randperm(valid_coords.shape[0])][:num_in]
+    target_rand = target_coords[torch.randperm(target_coords.shape[0])][:num_in]
+
+
+    # Sample camera coords uniformly
+    r = 4
+    # camera_height = 2
+    valid_uniform = torch.zeros((num_samples_scene - num_in, 3), device=valid_coords.device)
+    angle = torch.linspace(0, 2 * torch.pi, num_samples_scene - num_in +1, device=valid_coords.device)[:-1]
+    distance = np.sqrt(r ** 2 - camera_height **2)
+    valid_uniform[:, 1] = torch.ones((num_samples_scene - num_in), device=valid_coords.device) * camera_height
+    valid_uniform[:, 0] = distance * torch.cos(angle)
+    valid_uniform[:, 2] = distance * torch.sin(angle)
+    # valid_coords_selected[:, 2] = torch.sqrt(distance - valid_coords_selected[:, 0])
+    target_uniform = torch.zeros((num_samples_scene - num_in, 3), device=target_coords.device)
+    # target y to cam height
+    target_uniform[:, 1] = torch.ones((num_samples_scene - num_in)) * 0.5
+
+    valid_coords_selected = torch.cat([valid_rand, valid_uniform], dim=0)
+    target_coords_selected = torch.cat([target_rand, target_uniform], dim=0)
+    # print("SHSH", valid_coords_selected.shape, target_coords_selected.shape)
+
+    # plt.scatter(valid_rand[:, 0].cpu(), valid_rand[:, 2].cpu())
+    # plt.scatter(valid_uniform[:, 0].cpu(), valid_uniform[:, 2].cpu())
+    # # plt.xlim(-3, 3)
+    # # plt.ylim(-3, 3)
+    # plt.title("Random")
+    # plt.show()
 
     return valid_coords_selected, target_coords_selected
+    # return valid_rand, target_rand
 
 # def sample_camera_positions(scene_grid, bed_grid, room_layout, max_coords, num_samples_scene=10,
 #                             camera_height=1.7, num_samples_target=100, num_samples_camera=10000, seed=0,
