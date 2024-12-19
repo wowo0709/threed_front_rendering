@@ -208,7 +208,7 @@ def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_c
     # plt.show()
 
     # random select
-    num_in = int(num_samples_scene * 0.75)
+    num_in = int(num_samples_scene // 2)
     valid_rand = valid_coords[torch.randperm(valid_coords.shape[0])][:num_in]
     target_rand = target_coords[torch.randperm(target_coords.shape[0])][:num_in]
 

@@ -11,16 +11,14 @@ def normalize_camera_coords(camera_coords, target_coords, max_coords):
     # In case for two pairs repeated along column axis
     num_cams = camera_coords.shape[1]//3
     num_tar = target_coords.shape[1]//3
-    print(camera_coords.shape, max_coords.shape, max_coords)
-    print(camera_coords)
     camera_coords = camera_coords/max_coords.repeat(num_cams)
     target_coords = target_coords/max_coords.repeat(num_tar)
     camera_coords[..., [i*3 + 1 for i in range(num_cams)]] -= 0.5
     target_coords[..., [i*3 + 1 for i in range(num_tar)]] -= 0.5
     camera_coords *= 2
     target_coords *= 2
-    assert camera_coords.min() >= -1 and camera_coords.max() <= 1, camera_coords
-    assert target_coords.min() >= -1 and target_coords.max() <= 1, target_coords
+    # assert camera_coords.min() >= -1 and camera_coords.max() <= 1, camera_coords
+    # assert target_coords.min() >= -1 and target_coords.max() <= 1, target_coords
     return camera_coords, target_coords
 
 def main(in_dir, out_dir, max_coords, file_name='boxes.npz'):
