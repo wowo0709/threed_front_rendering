@@ -101,13 +101,14 @@ def main(front, future_folder, front_3D_texture_path, cc_material_path, path_lab
     objects = bproc.object.get_all_mesh_objects()
     y_max = 0
     for obj in objects:
-        y_max = max(y_max, obj.get_bound_box()[:, :-1].max())
+        y_max = max(y_max, obj.get_bound_box()[:, -1].max())
         if obj.get_name() not in loaded_list:
             print(obj.get_name())
             obj.hide()
     y_max /= 3
 
     for obj in loaded_objects:
+    # for obj in objects:
         bb = obj.get_bound_box()
         obj_box = bb[:, :-1]
         b_c = obj_box.mean(0)
@@ -169,7 +170,7 @@ def main(front, future_folder, front_3D_texture_path, cc_material_path, path_lab
 
     # Also render normals
     bproc.renderer.enable_normals_output()
-    bproc.renderer.enable_segmentation_output(map_by=["category_id"])
+    # bproc.renderer.enable_segmentation_output(map_by=["category_id"])
     bproc.renderer.enable_depth_output(activate_antialiasing=False)
 
     # render the whole pipeline

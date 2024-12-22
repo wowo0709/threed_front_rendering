@@ -1,7 +1,7 @@
 cd scripts
 
 cam_path_in=/root/desktop/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps
-cam_path_out=/root/desktop/tmp/3D-FRONT-processed/bedrooms_without_lamps_full_labels_zuniform-h1.7-r4
+cam_path_out=/root/desktop/tmp/3D-FRONT-processed/bedrooms_without_lamps_full_labels_zuniform-h3-r5
 start_idx=0
 end_idx=5
 
@@ -13,11 +13,11 @@ path_to_3d_front_dataset_dir=/root/desktop/3D-FRONT/3D-FRONT
 path_to_3d_future_dataset_dir=/root/desktop/3D-FRONT/3D-FUTURE-model
 path_to_3d_front_texture=/root/desktop/3D-FRONT/3D-FRONT-texture
 path_cc_textures=/root/desktop/3D-FRONT/3D-FRONT-processed/blender/cc_textures
-main_out_dir=/root/desktop/tmp/3D-FRONT-processed/bedrooms_without_lamps_full_raw/raw_256_depth_normal_noflip_vmax20_raw_zuniform-h1.7-r4
+main_out_dir=/root/desktop/tmp/3D-FRONT-processed/bedrooms_without_lamps_full_raw/raw_256_depth_normal_noflip_vmax20_raw_zuniform-h3-r5
 img_resolution=256
 # img_out_dir=/root/desktop/tmp/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_256
 # depth_out_dir=/root/desktop/tmp/3D-FRONT-processed/bedrooms_without_lamps_full_images/depths_256
-out_dir=/root/desktop/tmp/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_256_depth_normal_noflip_vmax20_raw_zuniform-h1.7-r4
+out_dir=/root/desktop/tmp/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_256_depth_normal_noflip_vmax20_raw_zuniform-h3-r5
 
 python create_camera_positions.py --start-idx $start_idx --end-idx $end_idx --path-in $cam_path_in --path-out $cam_path_out --num-samples-scene 40
 

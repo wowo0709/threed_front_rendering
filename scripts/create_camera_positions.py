@@ -214,8 +214,8 @@ def sample_camera_positions(scene_grid, bed_grid, room_layout, bed_center, max_c
 
 
     # Sample camera coords uniformly
-    r = 4
-    # camera_height = 2
+    r = 5
+    camera_height = 3
     valid_uniform = torch.zeros((num_samples_scene - num_in, 3), device=valid_coords.device)
     angle = torch.linspace(0, 2 * torch.pi, num_samples_scene - num_in +1, device=valid_coords.device)[:-1]
     distance = np.sqrt(r ** 2 - camera_height **2)
