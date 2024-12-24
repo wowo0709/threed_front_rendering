@@ -9,10 +9,10 @@ The goal is to sample camera positions that:
 
 # Bedroom
 path_in=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps
-path_out=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_labels
+path_out=/root/data/3D-FRONT/3D-FRONT-processed/cameras/bedrooms_without_lamps_full_labels_zuniform-h1.7-r4
 cd scripts
 # python create_camera_positions_trajectory.py --start-idx 0 --end-idx 6000 --path-in $path_in --path-out $path_out --num-samples-scene 40
-python create_camera_positions.py --start-idx 0 --end-idx 6000 --path-in $path_in --path-out $path_out --num-samples-scene 40
+python create_camera_positions.py --start-idx 0 --end-idx 3 --path-in $path_in --path-out $path_out --num-samples-scene 20
 
 # Living Rooms
 # path_in=/path/to/data/3dfront/processed/living_room_without_lamps/

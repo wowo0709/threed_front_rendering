@@ -10,13 +10,13 @@ cd BlenderProc-main
 # blenderproc run blenderproc/scripts/download_cc_textures.py $path_cc_textures
 
 path_cc_textures=/root/data/3D-FRONT/3D-FRONT-processed/blender/cc_textures
-path_to_3d_front_dataset_dir=/root/data/3D-FRONT/3D-FRONT/
-path_to_3d_future_dataset_dir=/root/data/3D-FRONT/3D-FUTURE-model/
-path_to_3d_future_model_info=/root/data/3D-FRONT/3D-FUTURE-model/model_info.json
+path_to_3d_front_dataset_dir=/root/data/3D-FRONT/3D-FRONT
+path_to_3d_future_dataset_dir=/root/data/3D-FRONT/3D-FUTURE-model
+# path_to_3d_future_model_info=/root/data/3D-FRONT/3D-FUTURE-model/model_info.json
 path_to_3d_front_texture=/root/data/3D-FRONT/3D-FRONT-texture
-path_labels=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_labels_vertices
-outdir=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_raw/raw_256
-outdir_img=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_256
+path_labels=/root/data/3D-FRONT/3D-FRONT-processed/vertices/bedrooms_without_lamps_full_labels_vertices_zuniform-h1.7-r4
+outdir=/root/data/3D-FRONT/3D-FRONT-processed/raw/bedrooms_without_lamps_full_raw/raw_256_zuniform-h1.7-r4
+outdir_img=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_256_zuniform-h1.7-r4
 img_resolution=256
 
 # for scene_idx in {0..6000}
@@ -29,15 +29,15 @@ img_resolution=256
 # done
 # done
 
-outdir=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_raw/raw_256_depth_normal_noflip_vmax20_raw
-outdir_img=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_images/images_256_depth_normal_noflip_vmax20_raw
+outdir=/root/data/3D-FRONT/3D-FRONT-processed/raw/bedrooms_without_lamps_full_raw/raw_256_depth_normal_noflip_vmax20_raw_zuniform-h1.7-r4
+outdir_img=/root/data/3D-FRONT/3D-FRONT-processed/images/bedrooms_without_lamps_full_images/images_256_depth_normal_noflip_vmax20_raw_zuniform-h1.7-r4
 # 
 # outdir=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_raw/test/test1
 # outdir_img=/root/data/3D-FRONT/3D-FRONT-processed/bedrooms_without_lamps_full_images/test/test1
 
 scene_idx=2
 blenderproc run examples/datasets/front_3d_with_improved_mat_traj_same/main.py $path_to_3d_front_dataset_dir $path_to_3d_future_dataset_dir $path_to_3d_front_texture $path_cc_textures $path_labels $outdir $scene_idx --img_resolution $img_resolution
-for frame_idx in {0..39}
+for frame_idx in $(seq 0 39)
 do
 blenderproc vis hdf5 $outdir --keys colors normals depth --rgb_keys colors normals --depth_keys depth --save $outdir_img --scene_idx $scene_idx --frame_idx $frame_idx --path_labels $path_labels
 done
