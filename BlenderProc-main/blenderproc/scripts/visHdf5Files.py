@@ -181,11 +181,13 @@ def vis_data(key, data, full_hdf5_data=None, file_label="", rgb_keys=None, flow_
             if flip:
                 data = np.flip(data, axis=1)
             if key == 'colors':
-                background = (np.ones((*data.shape[:2], 3))*255).astype(np.uint8)
+                background = (np.ones((*data.shape[:2], 4))*255).astype(np.uint8)
                 background = Image.fromarray(background)
                 data2 = Image.fromarray(data)
                 background.paste(data2, mask=data2.convert('RGBA'))
                 background = np.array(background)
+                if data.shape[-1] == 4:
+                    background[:, :, -1] = data[:, :, -1]
                 data = background
             else:
                 data = (data*255).astype(np.uint8)
