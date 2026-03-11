@@ -17,12 +17,40 @@ import trimesh
 
 from simple_3dviz import Mesh, Scene
 from simple_3dviz.renderables.textured_mesh import Material, TexturedMesh
+from simple_3dviz.io import read_mesh_file
 from simple_3dviz.utils import save_frame
 from simple_3dviz.behaviours.misc import LightToCamera
 from simple_3dviz.behaviours.io import SaveFrames
 from simple_3dviz.utils import render as render_simple_3dviz
 
 from scene_synthesis.utils import get_textured_objects
+
+
+def _load_textured_mesh_without_mtl(model_path):
+    """Load a textured mesh while bypassing fragile .mtl parsing."""
+    mesh = read_mesh_file(model_path)
+    vertices = mesh.vertices
+    try:
+        normals = mesh.normals
+    except NotImplementedError:
+        normals = np.repeat(TexturedMesh._triangle_normals(vertices), 3, axis=0)
+    try:
+        uv = mesh.uv
+    except NotImplementedError:
+        uv = np.zeros((vertices.shape[0], 2), dtype=np.float32)
+
+    model_dir = os.path.dirname(model_path)
+    texture_path = None
+    for name in ("texture.png", "texture.jpg", "image.jpg", "image.png"):
+        candidate = os.path.join(model_dir, name)
+        if os.path.isfile(candidate):
+            texture_path = candidate
+            break
+    if texture_path is None:
+        raise FileNotFoundError("No fallback texture image found")
+
+    material = Material.with_texture_image(texture_path)
+    return TexturedMesh(vertices, normals, uv, material)
 
 
 class DirLock(object):
@@ -134,8 +162,30 @@ def get_textured_objects_in_scene(scene, ignore_lamps=False):
             import pdb
             pdb.set_trace()
 
+        # Some 3D-FUTURE assets ship malformed .mtl files.
+        # First try native textured loading, then a direct texture fallback.
+        try:
+            raw_mesh = TexturedMesh.from_file(model_path)
+        except Exception as exc:
+            try:
+                raw_mesh = _load_textured_mesh_without_mtl(model_path)
+            except Exception as texture_fallback_exc:
+                print(
+                    "Warning: failed textured load for {} ({} / {}). "
+                    "Falling back to untextured mesh.".format(
+                        model_path, exc, texture_fallback_exc
+                    )
+                )
+                try:
+                    raw_mesh = Mesh.from_file(model_path)
+                except Exception as fallback_exc:
+                    print(
+                        "Warning: failed to load mesh {} ({}). Skipping object."
+                        .format(model_path, fallback_exc)
+                    )
+                    continue
+
         # Load the furniture and scale it as it is given in the dataset
-        raw_mesh = TexturedMesh.from_file(model_path)
         raw_mesh.scale(furniture.scale)
 
         # Compute the centroid of the vertices in order to match the

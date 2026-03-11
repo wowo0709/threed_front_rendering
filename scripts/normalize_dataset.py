@@ -4,8 +4,15 @@ from tqdm import tqdm
 import torch
 import numpy as np
 
+
+def _parse_max_coords(value):
+    if isinstance(value, (list, tuple, np.ndarray)):
+        return [float(v) for v in value]
+    return [float(v) for v in str(value).split(",")]
+
+
 def normalize_camera_coords(camera_coords, target_coords, max_coords):
-    max_coords = torch.tensor(max_coords, device=camera_coords.device)
+    max_coords = torch.as_tensor(max_coords, device=camera_coords.device)
     # camera_coords = camera_coords/max_coords
     # target_coords = target_coords/max_coords
     # In case for two pairs repeated along column axis
@@ -17,11 +24,24 @@ def normalize_camera_coords(camera_coords, target_coords, max_coords):
     target_coords[..., [i*3 + 1 for i in range(num_tar)]] -= 0.5
     camera_coords *= 2
     target_coords *= 2
-    assert camera_coords.min() >= -1 and camera_coords.max() <= 1, camera_coords
-    assert target_coords.min() >= -1 and target_coords.max() <= 1, target_coords
+    cam_min, cam_max = camera_coords.min().item(), camera_coords.max().item()
+    tar_min, tar_max = target_coords.min().item(), target_coords.max().item()
+    if cam_min < -1 or cam_max > 1:
+        raise ValueError(
+            "camera_coords out of normalized range [-1, 1]: "
+            f"min={cam_min:.4f}, max={cam_max:.4f}. "
+            "Increase --max-coords (e.g. x/z for orbit sampling) or reduce orbit radius."
+        )
+    if tar_min < -1 or tar_max > 1:
+        raise ValueError(
+            "target_coords out of normalized range [-1, 1]: "
+            f"min={tar_min:.4f}, max={tar_max:.4f}. "
+            "Increase --max-coords or reduce target jitter/radius."
+        )
     return camera_coords, target_coords
 
 def main(in_dir, out_dir, max_coords, file_name='boxes.npz'):
+    max_coords_t = torch.as_tensor(max_coords, dtype=torch.float32)
     scene_names = os.listdir(in_dir)
     for scene_name in tqdm(scene_names):
         in_dir_scene = os.path.join(in_dir, scene_name)
@@ -49,11 +69,10 @@ def main(in_dir, out_dir, max_coords, file_name='boxes.npz'):
         # Scale camera and target coords into [-1, 1]
         camera_coords, target_coords = normalize_camera_coords(camera_coords, target_coords, max_coords)
         # Divide by max values to scale into [-0.5,0.5]
-        max_coords = torch.tensor(max_coords)
-        sizes = sizes/max_coords
-        translations = translations/max_coords
+        sizes = sizes/max_coords_t
+        translations = translations/max_coords_t
         translations[..., 1] -= 0.5
-        room_layout = (room_layout / 255).permute(2, 0, 1)
+        room_layout = (room_layout.float() / 255.0).permute(2, 0, 1)
         translations = translations.flip(1)
         sizes = sizes.flip(1)
         translations[..., 1] *= -1
@@ -83,7 +102,8 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--max-coords",
-        default=[6.0, 4.0, 6.0] # Bedroom
+        default="6.0,4.0,6.0", # Bedroom
+        type=_parse_max_coords
         # default=[12.0, 4.0, 12.0] # Living
     )
     args = parser.parse_args()
